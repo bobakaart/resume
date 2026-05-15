@@ -780,16 +780,16 @@ footer a:hover { color: var(--accent); }
   object-fit: cover;
   object-position: top left;
   transform-origin: top left;
-  transition: opacity .7s ease;
+  transition: opacity .5s ease;
 }
 
 .slide-img.kb-run {
-  animation: kenBurns 8s ease-out forwards;
+  animation: kenBurns 22s linear forwards;
 }
 
 @keyframes kenBurns {
   from { transform: scale(1.0) translate(0, 0); }
-  to   { transform: scale(1.08) translate(-4%, -1%); }
+  to   { transform: scale(1.12) translate(-5%, -2%); }
 }
 
 .slideshow-card:hover .work-thumb .slide-img { transform: scale(1.0); }

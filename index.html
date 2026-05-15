@@ -411,6 +411,10 @@
 
     function init(list) {
       images = list;
+      list.forEach(function (name) {
+        var pre = new Image();
+        pre.src = DIR + name;
+      });
       list.forEach(function (_, i) {
         var dot = document.createElement('button');
         dot.className = 'slide-dot';
