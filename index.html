@@ -111,21 +111,19 @@
             </div>
           </a>
 
-          <a class="work-card"
-             href="https://360.articulate.com/review/content/52e44700-b76f-43de-a3a1-5191b5087316/review"
-             target="_blank" rel="noopener">
+          <div class="work-card slideshow-card" id="slideshow-card">
             <div class="work-thumb">
-              <img src="thumbs/uc.png" alt="Uncomfortable Conversations title screen" loading="lazy" />
-              <div class="thumb-overlay">
-                <span class="open">Open course</span>
-                <span class="arrow">↗</span>
-              </div>
+              <img class="slide-img" id="slide-img-a" src="" alt="Course screenshot" />
+            <img class="slide-img" id="slide-img-b" src="" alt="Course screenshot" />
+              <button class="slide-btn slide-prev" id="slide-prev" aria-label="Previous image">&#8249;</button>
+              <button class="slide-btn slide-next" id="slide-next" aria-label="Next image">&#8250;</button>
+              <div class="slide-dots" id="slide-dots"></div>
             </div>
             <div class="work-meta">
-              <h3 class="title">Uncomfortable Conversations</h3>
-              <p class="desc">Another example where engagement is seamlessly integrated into the content, creating a fully immersive flow.</p>
+              <h3 class="title">Variety of Examples</h3>
+              <p class="desc">On-screen text, quizzes, and scenario moments pulled from a handful of recent courses. Click any image to enlarge.</p>
             </div>
-          </a>
+          </div>
 
           <a class="work-card"
              href="https://360.articulate.com/review/content/7004733c-ea4c-4027-b996-17635f090425/review"
@@ -340,6 +338,116 @@
       };
       setTimeout(tick, 2000);
     })();
+  </script>
+
+  <!-- ============== LIGHTBOX ============== -->
+  <div id="lightbox" class="lightbox" hidden>
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">&#x2715;</button>
+    <button class="lightbox-btn lightbox-prev" id="lightbox-prev" aria-label="Previous">&#8249;</button>
+    <img id="lightbox-img" src="" alt="Enlarged course screenshot" />
+    <button class="lightbox-btn lightbox-next" id="lightbox-next" aria-label="Next">&#8250;</button>
+  </div>
+
+  <script>
+  (function () {
+    var DIR = 'images/';
+    var INTERVAL = 8000;
+    var FALLBACK = ["NBwtOf8uu5.png","g7MIo5Vbds.png","MUxtA6BP3l.png","bYG0rq07EO.png","0hDx4XBy0t.png","chrome_juIkeTwYui.png","chrome_vUIRccWMa4.png"];
+    var images = [], current = 0, timer = null;
+
+    var card    = document.getElementById('slideshow-card');
+    var imgA    = document.getElementById('slide-img-a');
+    var imgB    = document.getElementById('slide-img-b');
+    var dotsEl  = document.getElementById('slide-dots');
+    var prevBtn = document.getElementById('slide-prev');
+    var nextBtn = document.getElementById('slide-next');
+    var lb      = document.getElementById('lightbox');
+    var lbImg   = document.getElementById('lightbox-img');
+    var lbClose = document.getElementById('lightbox-close');
+    var lbPrev  = document.getElementById('lightbox-prev');
+    var lbNext  = document.getElementById('lightbox-next');
+    var thumb   = card.querySelector('.work-thumb');
+
+    var top = imgA, bot = imgB;
+    imgA.style.cssText = 'opacity:1;z-index:2';
+    imgB.style.cssText = 'opacity:0;z-index:1';
+
+    function startKB(img) {
+      img.classList.remove('kb-run');
+      void img.offsetWidth;
+      img.classList.add('kb-run');
+    }
+
+    function show(idx) {
+      current = ((idx % images.length) + images.length) % images.length;
+      Array.prototype.forEach.call(dotsEl.children, function (d, i) {
+        d.classList.toggle('active', i === current);
+      });
+      bot.src = DIR + images[current];
+      startKB(bot);
+      bot.style.opacity = '1';
+      bot.style.zIndex  = '3';
+      top.style.opacity = '0';
+      top.style.zIndex  = '2';
+      var tmp = top; top = bot; bot = tmp;
+      if (!lb.hidden) lbImg.src = DIR + images[current];
+    }
+
+    function startCycle() {
+      clearInterval(timer);
+      if (lb.hidden) timer = setInterval(function () { show(current + 1); }, INTERVAL);
+    }
+
+    function openLightbox() {
+      clearInterval(timer);
+      lbImg.src = DIR + images[current];
+      lb.hidden = false;
+    }
+
+    function closeLightbox() {
+      lb.hidden = true;
+      startCycle();
+    }
+
+    function init(list) {
+      images = list;
+      list.forEach(function (_, i) {
+        var dot = document.createElement('button');
+        dot.className = 'slide-dot';
+        dot.setAttribute('aria-label', 'Image ' + (i + 1));
+        dot.addEventListener('click', function (e) {
+          e.stopPropagation(); show(i); startCycle();
+        });
+        dotsEl.appendChild(dot);
+      });
+      show(0);
+      startCycle();
+    }
+
+    fetch(DIR + 'manifest.json')
+      .then(function (r) { return r.json(); })
+      .then(init)
+      .catch(function () { init(FALLBACK); });
+
+    prevBtn.addEventListener('click', function (e) { e.stopPropagation(); show(current - 1); startCycle(); });
+    nextBtn.addEventListener('click', function (e) { e.stopPropagation(); show(current + 1); startCycle(); });
+
+    thumb.addEventListener('click', function (e) {
+      if (!e.target.closest('.slide-btn, .slide-dot')) openLightbox();
+    });
+
+    lbClose.addEventListener('click', closeLightbox);
+    lbPrev.addEventListener('click', function () { show(current - 1); });
+    lbNext.addEventListener('click', function () { show(current + 1); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeLightbox(); });
+
+    document.addEventListener('keydown', function (e) {
+      if (lb.hidden) return;
+      if (e.key === 'Escape')          closeLightbox();
+      else if (e.key === 'ArrowLeft')  show(current - 1);
+      else if (e.key === 'ArrowRight') show(current + 1);
+    });
+  })();
   </script>
 
 </body>
